@@ -55,6 +55,12 @@
     <div style="display: flex;justify-content: center;align-items: center">
         <canvas id="gameCanvas" style="display: none;"></canvas>
     </div>
+    <div id="gameOverScreen" style="display: none; text-align: center;">
+        <h1>Game Over!</h1>
+        <p>Your Score: <span id="finalScore"></span></p>
+        <button id="playAgainButton" style="font-family: 'Bangers', cursive; background: #000; color: #fff;">Play
+            Again</button>
+    </div>
     <script>
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
@@ -111,8 +117,7 @@
 
         function drawScore() {
             ctx.fillStyle = '#000';
-            ctx.font = '20px Arial';
-            ctx.fontFamily = 'Bangers'
+            ctx.font = '20px Bangers';
             ctx.fillText(`Score: ${score}`, 10, 30);
         }
 
@@ -197,12 +202,25 @@
 
                 requestAnimationFrame(gameLoop);
             } else {
-                ctx.fillStyle = '#000';
-                ctx.font = '30px Arial';
-                ctx.fillText('Game Over!', canvas.width / 2 - 70, canvas.height / 2);
-                ctx.fillText(`Score: ${score}`, canvas.width / 2 - 50, canvas.height / 2 + 40);
+                gameCanvas.style.display = 'none'
+                document.getElementById('finalScore').innerText = score; // Display final score
+                document.getElementById('gameOverScreen').style.display = 'block'; // Show game over screen
             }
         }
+
+        document.getElementById('playAgainButton').addEventListener('click', () => {
+            // Reset game state
+            score = 0;
+            stack = [];
+            fallingObjects = [];
+            stackOffset = 0;
+            gameOver = false;
+            lastBiscuitTopTime = 0;
+            fallingSpeed = 1; // Reset falling speed
+            document.getElementById('gameOverScreen').style.display = 'none'; // Hide game over screen
+            resizeCanvas(); // Resize canvas for new game
+            gameLoop(); // Restart the game loop
+        });
 
         canvas.addEventListener('mousedown', (e) => {
             const rect = canvas.getBoundingClientRect();
@@ -258,6 +276,12 @@
         const gameCanvas = document.getElementById('gameCanvas');
 
         document.getElementById('startButton').addEventListener('click', () => {
+            startScreen.style.display = 'none';
+            gameCanvas.style.display = 'flex';
+            gameLoop(); // Start the game loop
+        });
+
+        document.getElementById('playAgainButton').addEventListener('click', () => {
             startScreen.style.display = 'none';
             gameCanvas.style.display = 'flex';
             gameLoop(); // Start the game loop
