@@ -32,6 +32,13 @@
             margin-top: 20px;
             /* Adjust spacing as needed */
         }
+
+        #gameCanvas {
+            width: auto;
+            height: 90vh;
+            max-width: 600px;
+            display: none;
+        }
     </style>
 </head>
 
@@ -48,7 +55,9 @@
                font-family: 'MedievalSharp', cursive;
             ">PLAY</button>
     </div>
-    <canvas id="gameCanvas" width="300" height="500" style="display: none;"></canvas>
+    <div style="display: flex;justify-content: center;align-items: center">
+        <canvas id="gameCanvas" style="display: none;"></canvas>
+    </div>
     <script>
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
@@ -208,12 +217,39 @@
                 const rect = canvas.getBoundingClientRect();
                 const mouseX = e.clientX - rect.left;
                 biscuitBaseX = mouseX - biscuitWidth / 2;
+
+                // Ensure the biscuit base stays within the canvas bounds
                 biscuitBaseX = Math.max(0, Math.min(canvas.width - biscuitWidth, biscuitBaseX));
                 stack.forEach(cream => cream.x = biscuitBaseX);
             }
         });
 
         canvas.addEventListener('mouseup', () => {
+            isDragging = false;
+        });
+
+        // Add touch event listeners for mobile devices
+        canvas.addEventListener('touchstart', (e) => {
+            const rect = canvas.getBoundingClientRect();
+            const touchX = e.touches[0].clientX - rect.left;
+            if (touchX >= biscuitBaseX && touchX <= biscuitBaseX + biscuitWidth) {
+                isDragging = true;
+            }
+        });
+
+        canvas.addEventListener('touchmove', (e) => {
+            if (isDragging) {
+                const rect = canvas.getBoundingClientRect();
+                const touchX = e.touches[0].clientX - rect.left;
+                biscuitBaseX = touchX - biscuitWidth / 2;
+
+                // Ensure the biscuit base stays within the canvas bounds
+                biscuitBaseX = Math.max(0, Math.min(canvas.width - biscuitWidth, biscuitBaseX));
+                stack.forEach(cream => cream.x = biscuitBaseX);
+            }
+        });
+
+        canvas.addEventListener('touchend', () => {
             isDragging = false;
         });
 
@@ -226,6 +262,17 @@
             gameCanvas.style.display = 'flex';
             gameLoop(); // Start the game loop
         });
+
+        function resizeCanvas() {
+            const newHeight = window.innerHeight; // Use full height of the viewport
+            const aspectRatio = 300 / 500; // Original aspect ratio
+            const newWidth = newHeight * aspectRatio; // Maintain aspect ratio
+            canvas.width = newWidth;
+            canvas.height = newHeight;
+        }
+
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas(); // Initial resize
 
         gameLoop();
     </script>
