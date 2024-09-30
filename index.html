@@ -156,14 +156,17 @@
 
         function checkCollision() {
             const stackTop = stack.length > 0 ? stack[stack.length - 1] : { y: canvas.height - biscuitHeight + stackOffset, x: biscuitBaseX };
+            const topObjectY = stackTop.y - stackOffset; // Adjust for stack offset
+
             fallingObjects.forEach(obj => {
-                if (obj.y + (obj.type === 'cream' ? creamHeight : biscuitHeight) >= stackTop.y &&
-                    obj.y + (obj.type === 'cream' ? creamHeight : biscuitHeight) <= stackTop.y + creamHeight) {
-                    if (Math.abs(obj.x - stackTop.x) < 20) {
+                const objHeight = obj.type === 'cream' ? creamHeight : biscuitHeight;
+                // Check if the bottom of the falling object is touching or overlapping the top of the stack
+                if (obj.y + objHeight >= topObjectY && obj.y + objHeight <= topObjectY + creamHeight) {
+                    if (Math.abs(obj.x - stackTop.x) < 65) { // Allow for some leeway in the x-axis
                         if (obj.type === 'cream') {
-                            stack.push({ x: stackTop.x, y: stackTop.y - creamHeight });
+                            stack.push({ x: stackTop.x, y: topObjectY - creamHeight });
                             score++;
-                            if (canvas.height - (stackTop.y - creamHeight - stackOffset) > visibleStackHeight) {
+                            if (canvas.height - (topObjectY - creamHeight - stackOffset) > visibleStackHeight) {
                                 moveStackUp();
                             }
                         } else {
